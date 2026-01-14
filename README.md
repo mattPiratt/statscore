@@ -1,0 +1,151 @@
+# Football Events Application
+
+Simple application for handling football events
+
+## Requirements
+
+- Docker
+- Docker Compose
+
+## Installation and Setup
+
+1. Build and run the container:
+
+```bash
+docker compose up --build -d
+```
+
+2. Build and run the container:
+
+```bash
+docker exec -it football_events_app composer install
+```
+
+3. The application will be available at: `http://localhost:8000`
+
+## Usage
+
+### Foul Event
+
+Send a POST request with a foul event:
+
+```bash
+curl -X POST http://localhost:8000/event \
+  -H "Content-Type: application/json" \
+  -d '{"type": "foul", "player": "William Saliba", "team_id": "arsenal", "match_id": "m1", "minute": 45, "second": 34}'
+```
+
+### Example Response
+
+Both events return a similar response structure:
+
+```json
+{
+  "status": "success",
+  "message": "Event saved successfully",
+  "event": {
+    "type": "foul",
+    "timestamp": 1729599123,
+    "data": {
+      "type": "foul",
+      "player": "William Saliba",
+      "team_id": "arsenal",
+      "match_id": "m1",
+      "minute": 45,
+      "second": 34
+    }
+  }
+}
+```
+
+### Statistics Endpoint
+
+Get team statistics for a specific match:
+
+```bash
+curl "http://localhost:8000/statistics?match_id=m1&team_id=arsenal"
+```
+
+Get all team statistics for a match:
+
+```bash
+curl "http://localhost:8000/statistics?match_id=m1"
+```
+
+Example response:
+
+```json
+{
+  "match_id": "m1",
+  "team_id": "arsenal",
+  "statistics": {
+    "fouls": 2
+  }
+}
+```
+
+Foul events automatically update team statistics (fouls counter) for the specified team in the given match.
+
+## Tests
+
+### PHPUnit Tests
+
+Run PHPUnit tests inside the container:
+
+```bash
+docker exec -it football_events_app vendor/bin/phpunit tests
+```
+
+Or after entering the container:
+
+```bash
+docker exec -it football_events_app bash
+vendor/bin/phpunit tests
+```
+
+### Codeception API Tests
+
+Run Codeception API tests for comprehensive endpoint testing:
+
+```bash
+docker exec -it football_events_app vendor/bin/codecept run Api
+```
+
+Run all Codeception tests:
+
+```bash
+docker exec -it football_events_app vendor/bin/codecept run
+```
+
+### Test Coverage
+
+The project includes:
+
+- **Unit tests** (PHPUnit): Test individual classes and methods
+- **API tests** (Codeception): Test HTTP endpoints and responses
+- **Integration tests**: Test complete workflows including statistics tracking
+
+## Project Structure
+
+```
+.
+├── Dockerfile
+├── docker-compose.yml
+├── composer.json
+├── phpunit.xml
+├── public/
+│   └── index.php          # Application entry point
+├── src/
+│   ├── EventHandler.php      # Event handling
+│   ├── FileStorage.php       # File storage
+│   └── StatisticsManager.php # Statistics management
+├── tests/
+│   ├── Unit/                 # PHPUnit tests
+|   |   └── EventHandlerTest.php
+│   ├── Api/                  # Codeception API tests
+│   │   ├── EventApiCest.php
+│   │   └── StatisticsApiCest.php
+│   └── Support/              # Test helpers
+└── storage/                  # Files with saved events and statistics
+```
+

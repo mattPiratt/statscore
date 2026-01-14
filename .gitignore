@@ -1,0 +1,7 @@
+/vendor/
+.idea
+.junie
+Task.md
+.phpunit.cache
+storage
+
