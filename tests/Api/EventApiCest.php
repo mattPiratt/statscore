@@ -19,12 +19,13 @@ class EventApiCest
         $I->sendPOST('/event', [
             'type' => 'foul',
             'player' => 'William Saliba',
+            'affected_player' => 'Erling Haaland',
             'team_id' => 'arsenal',
             'match_id' => 'm1',
             'minute' => 45,
             'second' => 34
         ]);
-        
+
         $I->seeResponseCodeIs(201);
         $I->seeResponseIsJson();
         $I->seeResponseContainsJson([
@@ -40,15 +41,15 @@ class EventApiCest
         $I->sendPOST('/event', [
             'type' => 'foul',
             'player' => 'William Saliba',
-                'minute' => 45,
+            'minute' => 45,
             'second' => 34
             // Missing team_id and match_id
         ]);
-        
+
         $I->seeResponseCodeIs(400);
         $I->seeResponseIsJson();
         $I->seeResponseContainsJson([
-            'error' => 'match_id and team_id are required for foul events'
+            'error' => 'match_id, team_id, player and affected_player are required for foul events'
         ]);
     }
 
@@ -56,7 +57,7 @@ class EventApiCest
     {
         $I->haveHttpHeader('Content-Type', 'application/json');
         $I->sendPOST('/event', 'invalid json');
-        
+
         $I->seeResponseCodeIs(400);
         $I->seeResponseIsJson();
         $I->seeResponseContainsJson([
@@ -72,7 +73,7 @@ class EventApiCest
             'minute' => 23,
             'second' => 34
         ]);
-        
+
         $I->seeResponseCodeIs(400);
         $I->seeResponseIsJson();
         $I->seeResponseContainsJson([

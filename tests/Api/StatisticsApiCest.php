@@ -20,25 +20,27 @@ class StatisticsApiCest
         $I->sendPOST('/event', [
             'type' => 'foul',
             'player' => 'William Saliba',
+            'affected_player' => 'Erling Haaland',
             'team_id' => 'arsenal',
             'match_id' => 'm1',
             'minute' => 15,
             'second' => 34
         ]);
-        
+
         $I->haveHttpHeader('Content-Type', 'application/json');
         $I->sendPOST('/event', [
             'type' => 'foul',
             'player' => 'Gabriel Jesus',
+            'affected_player' => 'Kevin De Bruyne',
             'team_id' => 'arsenal',
             'match_id' => 'm1',
             'minute' => 30,
             'second' => 33
         ]);
-        
+
         // Now get team statistics
         $I->sendGET('/statistics?match_id=m1&team_id=arsenal');
-        
+
         $I->seeResponseCodeIs(200);
         $I->seeResponseIsJson();
         $I->seeResponseContainsJson([
@@ -57,25 +59,27 @@ class StatisticsApiCest
         $I->sendPOST('/event', [
             'type' => 'foul',
             'player' => 'William Saliba',
+            'affected_player' => 'Erling Haaland',
             'team_id' => 'arsenal',
             'match_id' => 'm1',
             'minute' => 15,
             'second' => 34
         ]);
-        
+
         $I->haveHttpHeader('Content-Type', 'application/json');
         $I->sendPOST('/event', [
             'type' => 'foul',
             'player' => 'Virgil van Dijk',
+            'affected_player' => 'Gabriel Jesus',
             'team_id' => 'liverpool',
             'match_id' => 'm1',
             'minute' => 30,
             'second' => 33
         ]);
-        
+
         // Get all match statistics
         $I->sendGET('/statistics?match_id=m1');
-        
+
         $I->seeResponseCodeIs(200);
         $I->seeResponseIsJson();
         $I->seeResponseContainsJson([
@@ -94,7 +98,7 @@ class StatisticsApiCest
     public function testGetStatisticsWithoutMatchId(ApiTester $I)
     {
         $I->sendGET('/statistics');
-        
+
         $I->seeResponseCodeIs(400);
         $I->seeResponseIsJson();
         $I->seeResponseContainsJson([
@@ -105,7 +109,7 @@ class StatisticsApiCest
     public function testGetStatisticsForNonExistentTeam(ApiTester $I)
     {
         $I->sendGET('/statistics?match_id=m1&team_id=nonexistent');
-        
+
         $I->seeResponseCodeIs(200);
         $I->seeResponseIsJson();
         $I->seeResponseContainsJson([
@@ -118,7 +122,7 @@ class StatisticsApiCest
     public function testGetStatisticsForNonExistentMatch(ApiTester $I)
     {
         $I->sendGET('/statistics?match_id=nonexistent');
-        
+
         $I->seeResponseCodeIs(200);
         $I->seeResponseIsJson();
         $I->seeResponseContainsJson([
