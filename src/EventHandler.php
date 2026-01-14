@@ -31,10 +31,12 @@ class EventHandler
 
         // Update statistics for foul events
         if ($data['type'] === 'foul') {
-            if (!isset($data['match_id']) || !isset($data['team_id'])) {
-                throw new \InvalidArgumentException('match_id and team_id are required for foul events');
+            if (!isset($data['match_id']) || !isset($data['team_id']) || !isset($data['player']) || !isset($data['affected_player'])) {
+                throw new InvalidArgumentException(
+                    'match_id, team_id, player and affected_player are required for foul events'
+                );
             }
-            
+
             $this->statisticsManager->updateTeamStatistics(
                 $data['match_id'],
                 $data['team_id'],

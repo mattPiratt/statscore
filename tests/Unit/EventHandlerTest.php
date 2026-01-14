@@ -151,7 +151,38 @@ class EventHandlerTest extends TestCase
     {
         $statisticsManager = new StatisticsManager($this->testStatsFile);
         $handler = new EventHandler($this->testFile, $statisticsManager);
-        
+
+        $eventData = [
+            'type' => 'foul',
+            'player' => 'William Saliba',
+            'affected_player' => 'Erling Haaland',
+            'team_id' => 'arsenal',
+            'match_id' => 'm1',
+            'minute' => 45,
+            'second' => 34
+        ];
+
+        $result = $handler->handleEvent($eventData);
+
+        // Check that event was saved successfully
+        $this->assertEquals('success', $result['status']);
+        $this->assertEquals('foul', $result['event']['type']);
+        $this->assertEquals('Erling Haaland', $result['event']['data']['affected_player']);
+
+        // Check that statistics were updated
+        $teamStats = $statisticsManager->getTeamStatistics('m1', 'arsenal');
+        $this->assertArrayHasKey('fouls', $teamStats);
+        $this->assertEquals(1, $teamStats['fouls']);
+    }
+
+    public function testHandleFoulEventWithoutAffectedPlayer(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('match_id, team_id, player and affected_player are required for foul events');
+
+        $statisticsManager = new StatisticsManager($this->testStatsFile);
+        $handler = new EventHandler($this->testFile, $statisticsManager);
+
         $eventData = [
             'type' => 'foul',
             'player' => 'William Saliba',
@@ -160,66 +191,59 @@ class EventHandlerTest extends TestCase
             'minute' => 45,
             'second' => 34
         ];
-        
-        $result = $handler->handleEvent($eventData);
-        
-        // Check that event was saved successfully
-        $this->assertEquals('success', $result['status']);
-        $this->assertEquals('foul', $result['event']['type']);
-        
-        // Check that statistics were updated
-        $teamStats = $statisticsManager->getTeamStatistics('m1', 'arsenal');
-        $this->assertArrayHasKey('fouls', $teamStats);
-        $this->assertEquals(1, $teamStats['fouls']);
+
+        $handler->handleEvent($eventData);
     }
-    
+
     public function testHandleMultipleFoulEventsIncrementsStatistics(): void
     {
         $statisticsManager = new StatisticsManager($this->testStatsFile);
         $handler = new EventHandler($this->testFile, $statisticsManager);
-        
+
         $eventData1 = [
             'type' => 'foul',
             'player' => 'John Doe',
+            'affected_player' => 'Affected 1',
             'team_id' => 'team_a',
             'match_id' => 'match_1',
             'minute' => 15,
             'second' => 34
         ];
-        
+
         $eventData2 = [
             'type' => 'foul',
             'player' => 'Jane Smith',
+            'affected_player' => 'Affected 2',
             'team_id' => 'team_a',
             'match_id' => 'match_1',
             'minute' => 30,
             'second' => 34
         ];
-        
+
         $handler->handleEvent($eventData1);
         $handler->handleEvent($eventData2);
-        
+
         // Check that statistics were incremented correctly
         $teamStats = $statisticsManager->getTeamStatistics('match_1', 'team_a');
         $this->assertEquals(2, $teamStats['fouls']);
     }
-    
+
     public function testHandleFoulEventWithoutRequiredFields(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('match_id and team_id are required for foul events');
-        
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('match_id, team_id, player and affected_player are required for foul events');
+
         $statisticsManager = new StatisticsManager($this->testStatsFile);
         $handler = new EventHandler($this->testFile, $statisticsManager);
-        
+
         $eventData = [
             'type' => 'foul',
             'player' => 'John Doe',
             'minute' => 45,
             'second' => 34
-            // Missing match_id and team_id
+            // Missing match_id, team_id and affected_player
         ];
-        
+
         $handler->handleEvent($eventData);
     }
 }
