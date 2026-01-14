@@ -5,19 +5,20 @@ namespace Tests;
 use App\EventHandler;
 use App\FileStorage;
 use App\StatisticsManager;
+use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 
 class EventHandlerTest extends TestCase
 {
     private string $testFile;
     private string $testStatsFile;
-    
+
     protected function setUp(): void
     {
         $this->testFile = sys_get_temp_dir() . '/test_events_' . uniqid() . '.txt';
         $this->testStatsFile = sys_get_temp_dir() . '/test_stats_' . uniqid() . '.txt';
     }
-    
+
     protected function tearDown(): void
     {
         if (file_exists($this->testFile)) {
@@ -27,53 +28,125 @@ class EventHandlerTest extends TestCase
             unlink($this->testStatsFile);
         }
     }
-    
+
     public function testHandleGoalEvent(): void
     {
         $handler = new EventHandler($this->testFile);
-        
+
         $eventData = [
             'type' => 'goal',
             'player' => 'John Doe',
+            'team_id' => 'team_a',
+            'match_id' => 'match_1',
             'minute' => 23,
             'second' => 34
         ];
-        
+
         $result = $handler->handleEvent($eventData);
-        
+
         $this->assertEquals('success', $result['status']);
         $this->assertEquals('goal', $result['event']['type']);
         $this->assertArrayHasKey('timestamp', $result['event']);
     }
-    
+
+    public function testHandleGoalEventUpdatesStatistics(): void
+    {
+        $statisticsManager = new StatisticsManager($this->testStatsFile);
+        $handler = new EventHandler($this->testFile, $statisticsManager);
+
+        $eventData = [
+            'type' => 'goal',
+            'player' => 'John Doe',
+            'assistant' => 'Jane Smith',
+            'team_id' => 'team_a',
+            'match_id' => 'match_1',
+            'minute' => 23,
+            'second' => 34
+        ];
+
+        $result = $handler->handleEvent($eventData);
+
+        // Check that event was saved successfully
+        $this->assertEquals('success', $result['status']);
+        $this->assertEquals('goal', $result['event']['type']);
+
+        // Check that statistics were updated
+        $teamStats = $statisticsManager->getTeamStatistics('match_1', 'team_a');
+        $this->assertArrayHasKey('goals', $teamStats);
+        $this->assertEquals(1, $teamStats['goals']);
+        $this->assertArrayHasKey('assists', $teamStats);
+        $this->assertEquals(1, $teamStats['assists']);
+    }
+
+    public function testHandleGoalEventWithoutAssistant(): void
+    {
+        $statisticsManager = new StatisticsManager($this->testStatsFile);
+        $handler = new EventHandler($this->testFile, $statisticsManager);
+
+        $eventData = [
+            'type' => 'goal',
+            'player' => 'John Doe',
+            'team_id' => 'team_a',
+            'match_id' => 'match_1',
+            'minute' => 23,
+            'second' => 34
+        ];
+
+        $handler->handleEvent($eventData);
+
+        $teamStats = $statisticsManager->getTeamStatistics('match_1', 'team_a');
+        $this->assertEquals(1, $teamStats['goals']);
+        $this->assertArrayNotHasKey('assists', $teamStats);
+    }
+
+    public function testHandleGoalEventWithoutRequiredFields(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('match_id, team_id and player are required for goal events');
+
+        $statisticsManager = new StatisticsManager($this->testStatsFile);
+        $handler = new EventHandler($this->testFile, $statisticsManager);
+
+        $eventData = [
+            'type' => 'goal',
+            'team_id' => 'team_a',
+            'match_id' => 'match_1'
+            // Missing player
+        ];
+
+        $handler->handleEvent($eventData);
+    }
+
     public function testHandleEventWithoutType(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Event type is required');
-        
+
         $handler = new EventHandler($this->testFile);
-        
+
         $handler->handleEvent([]);
     }
-    
+
     public function testEventIsSavedToFile(): void
     {
         $storage = new FileStorage($this->testFile);
         $handler = new EventHandler($this->testFile);
-        
+
         $eventData = [
             'type' => 'goal',
-            'player' => 'Jane Smith'
+            'player' => 'Jane Smith',
+            'team_id' => 'team_a',
+            'match_id' => 'match_1'
         ];
-        
+
         $handler->handleEvent($eventData);
-        
+
         $this->assertFileExists($this->testFile);
         $savedEvents = $storage->getAll();
         $this->assertCount(1, $savedEvents);
         $this->assertEquals('goal', $savedEvents[0]['type']);
     }
-    
+
     public function testHandleFoulEventUpdatesStatistics(): void
     {
         $statisticsManager = new StatisticsManager($this->testStatsFile);
