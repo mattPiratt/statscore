@@ -4,6 +4,9 @@ namespace App;
 
 use App\Presentation\Http\GameController;
 use App\Shared\Infrastructure\SystemClock;
+use App\Statistics\Domain\Factory\GameEventFactory;
+use App\Statistics\Domain\Strategy\FoulStatisticsUpdateStrategy;
+use App\Statistics\Domain\Strategy\GoalStatisticsUpdateStrategy;
 use App\Statistics\Infrastructure\Persistence\EventsStore;
 use App\Statistics\Infrastructure\Persistence\StatisticsStore;
 
@@ -20,9 +23,18 @@ class Kernel
         // TODO: use php-di/php-di package to handle cleanly inversion of controll
         $eventsStore = new EventsStore($eventsPath);
         $statsStore = new StatisticsStore($statsPath);
-        $clock = new SystemClock();
+        $gameEventFactory = new GameEventFactory(new SystemClock());
+        $statisticsStrategies = [
+            new GoalStatisticsUpdateStrategy(),
+            new FoulStatisticsUpdateStrategy(),
+        ];
 
-        $this->controller = new GameController($eventsStore, $statsStore, $clock);
+        $this->controller = new GameController(
+            eventsStore: $eventsStore,
+            statsStore: $statsStore,
+            eventFactory: $gameEventFactory,
+            strategies: $statisticsStrategies
+        );
     }
 
     public function handleRequest(): void

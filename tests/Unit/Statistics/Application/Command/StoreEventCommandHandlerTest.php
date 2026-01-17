@@ -5,8 +5,11 @@ namespace Tests\Unit\Statistics\Application\Command;
 use App\Shared\Infrastructure\SystemClock;
 use App\Statistics\Application\Command\StoreEventCommand;
 use App\Statistics\Application\Command\StoreEventCommandHandler;
+use App\Statistics\Domain\Factory\GameEventFactory;
 use App\Statistics\Domain\Repository\EventsStoreInterface;
 use App\Statistics\Domain\Repository\StatisticsStoreInterface;
+use App\Statistics\Domain\Strategy\FoulStatisticsUpdateStrategy;
+use App\Statistics\Domain\Strategy\GoalStatisticsUpdateStrategy;
 use App\Statistics\Infrastructure\Persistence\EventsStore;
 use App\Statistics\Infrastructure\Persistence\StatisticsStore;
 use InvalidArgumentException;
@@ -30,7 +33,11 @@ class StoreEventCommandHandlerTest extends TestCase
         $this->handler = new StoreEventCommandHandler(
             $this->eventsStore,
             $this->statisticsStore,
-            new SystemClock()
+            new GameEventFactory(new SystemClock()),
+            [
+                new GoalStatisticsUpdateStrategy(),
+                new FoulStatisticsUpdateStrategy(),
+            ]
         );
     }
 

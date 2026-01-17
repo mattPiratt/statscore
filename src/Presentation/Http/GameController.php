@@ -7,17 +7,22 @@ use App\Statistics\Application\Command\StoreEventCommand;
 use App\Statistics\Application\Command\StoreEventCommandHandler;
 use App\Statistics\Application\Query\GetStatisticsQuery;
 use App\Statistics\Application\Query\GetStatisticsQueryHandler;
+use App\Statistics\Domain\Factory\GameEventFactoryInterface;
 use App\Statistics\Domain\Repository\EventsStoreInterface;
 use App\Statistics\Domain\Repository\StatisticsStoreInterface;
+use App\Statistics\Domain\Strategy\StatisticsUpdateStrategyInterface;
 use Exception;
-use Psr\Clock\ClockInterface;
 
 class GameController extends HttpJsonController
 {
+    /**
+     * @var StatisticsUpdateStrategyInterface[] $strategies
+     */
     public function __construct(
         private readonly EventsStoreInterface $eventsStore,
         private readonly StatisticsStoreInterface $statsStore,
-        private readonly ClockInterface $clock
+        private readonly GameEventFactoryInterface $eventFactory,
+        private readonly array $strategies = []
     ) {
     }
 
@@ -29,10 +34,11 @@ class GameController extends HttpJsonController
             $handler = new StoreEventCommandHandler(
                 eventsStore: $this->eventsStore,
                 statisticsStore: $this->statsStore,
-                clock: $this->clock
+                eventFactory: $this->eventFactory,
+                strategies: $this->strategies
             );
             $command = new StoreEventCommand($data);
-            
+
             $result = $handler->handle($command);
 
             $this->sendResponse(201, [
