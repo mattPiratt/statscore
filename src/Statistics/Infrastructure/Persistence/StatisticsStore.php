@@ -2,8 +2,10 @@
 
 namespace App\Statistics\Infrastructure\Persistence;
 
+use App\Statistics\Domain\Model\TeamStatistics;
 use App\Statistics\Domain\Repository\StatisticsStoreInterface;
-use App\Statistics\Domain\ValueObject\StatType;
+use App\Statistics\Domain\ValueObject\MatchId;
+use App\Statistics\Domain\ValueObject\TeamId;
 use App\Statistics\Infrastructure\File\FileStorage;
 
 class StatisticsStore implements StatisticsStoreInterface
@@ -15,37 +17,34 @@ class StatisticsStore implements StatisticsStoreInterface
         $this->storage = new FileStorage($statsFile);
     }
 
-    public function updateTeamStatistics(string $matchId, string $teamId, StatType $statType, int $value = 1): void
+    public function save(TeamStatistics $statistics): void
     {
         $stats = $this->getStatistics();
+
+        $matchId = $statistics->matchId()->value();
+        $teamId = $statistics->teamId()->value();
 
         if (!isset($stats[$matchId])) {
             $stats[$matchId] = [];
         }
 
-        if (!isset($stats[$matchId][$teamId])) {
-            $stats[$matchId][$teamId] = [];
-        }
-
-        if (!isset($stats[$matchId][$teamId][$statType->value])) {
-            $stats[$matchId][$teamId][$statType->value] = 0;
-        }
-
-        $stats[$matchId][$teamId][$statType->value] += $value;
+        $stats[$matchId][$teamId] = $statistics->toArray();
 
         $this->saveStatistics($stats);
     }
 
-    public function getTeamStatistics(string $matchId, string $teamId): array
+    public function getTeamStatistics(MatchId $matchId, TeamId $teamId): TeamStatistics
     {
         $stats = $this->getStatistics();
-        return $stats[$matchId][$teamId] ?? [];
+        $data = $stats[$matchId->value()][$teamId->value()] ?? [];
+
+        return new TeamStatistics($matchId, $teamId, $data);
     }
 
-    public function getMatchStatistics(string $matchId): array
+    public function getMatchStatistics(MatchId $matchId): array
     {
         $stats = $this->getStatistics();
-        return $stats[$matchId] ?? [];
+        return $stats[$matchId->value()] ?? [];
     }
 
     private function getStatistics(): array

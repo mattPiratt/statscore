@@ -2,13 +2,15 @@
 
 namespace App\Statistics\Domain\Repository;
 
-use App\Statistics\Domain\ValueObject\StatType;
+use App\Statistics\Domain\Model\TeamStatistics;
+use App\Statistics\Domain\ValueObject\MatchId;
+use App\Statistics\Domain\ValueObject\TeamId;
 
 interface StatisticsStoreInterface
 {
-    public function updateTeamStatistics(string $matchId, string $teamId, StatType $statType, int $value = 1): void;
+    public function save(TeamStatistics $statistics): void;
 
-    public function getTeamStatistics(string $matchId, string $teamId): array;
+    public function getTeamStatistics(MatchId $matchId, TeamId $teamId): TeamStatistics;
 
-    public function getMatchStatistics(string $matchId): array;
+    public function getMatchStatistics(MatchId $matchId): array;
 }

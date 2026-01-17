@@ -4,6 +4,7 @@ namespace App\Statistics\Application\Command;
 
 use App\Statistics\Domain\Event\GameEventInterface;
 use App\Statistics\Domain\Factory\GameEventFactoryInterface;
+use App\Statistics\Domain\Model\TeamStatistics;
 use App\Statistics\Domain\Repository\EventsStoreInterface;
 use App\Statistics\Domain\Repository\StatisticsStoreInterface;
 use App\Statistics\Domain\Strategy\StatisticsUpdateStrategyInterface;
@@ -28,16 +29,22 @@ class StoreEventCommandHandler implements CommandHandlerInterface
 
         $this->eventsStore->save($event);
 
-        $this->updateStatistics($event);
+        $teamStatistics = $this->statisticsStore->getTeamStatistics($event->matchId(), $event->teamId());
+
+        $this->updateStatistics($event, $teamStatistics);
+
+        $this->statisticsStore->save($teamStatistics);
 
         return $event->toArray();
     }
 
-    private function updateStatistics(GameEventInterface $event): void
-    {
+    private function updateStatistics(
+        GameEventInterface $event,
+        TeamStatistics $teamStatistics
+    ): void {
         foreach ($this->strategies as $strategy) {
             if ($strategy->canHandle($event)) {
-                $strategy->update($event, $this->statisticsStore);
+                $strategy->update($event, $teamStatistics);
             }
         }
     }

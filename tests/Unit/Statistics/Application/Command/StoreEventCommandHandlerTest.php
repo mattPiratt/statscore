@@ -10,6 +10,8 @@ use App\Statistics\Domain\Repository\EventsStoreInterface;
 use App\Statistics\Domain\Repository\StatisticsStoreInterface;
 use App\Statistics\Domain\Strategy\FoulStatisticsUpdateStrategy;
 use App\Statistics\Domain\Strategy\GoalStatisticsUpdateStrategy;
+use App\Statistics\Domain\ValueObject\MatchId;
+use App\Statistics\Domain\ValueObject\TeamId;
 use App\Statistics\Infrastructure\Persistence\EventsStore;
 use App\Statistics\Infrastructure\Persistence\StatisticsStore;
 use InvalidArgumentException;
@@ -85,7 +87,7 @@ class StoreEventCommandHandlerTest extends TestCase
         $command = new StoreEventCommand($eventData);
         $this->handler->handle($command);
 
-        $teamStats = $this->statisticsStore->getTeamStatistics('match_1', 'team_a');
+        $teamStats = $this->statisticsStore->getTeamStatistics(new MatchId('match_1'), new TeamId('team_a'))->toArray();
         $this->assertArrayHasKey('goals', $teamStats);
         $this->assertEquals(1, $teamStats['goals']);
         $this->assertArrayHasKey('assists', $teamStats);
@@ -107,7 +109,7 @@ class StoreEventCommandHandlerTest extends TestCase
         $command = new StoreEventCommand($eventData);
         $this->handler->handle($command);
 
-        $teamStats = $this->statisticsStore->getTeamStatistics('match_1', 'team_a');
+        $teamStats = $this->statisticsStore->getTeamStatistics(new MatchId('match_1'), new TeamId('team_a'))->toArray();
         $this->assertEquals(1, $teamStats['goals']);
         $this->assertArrayNotHasKey('assists', $teamStats);
     }
@@ -142,7 +144,7 @@ class StoreEventCommandHandlerTest extends TestCase
 
         $command = new StoreEventCommand($eventData);
         $this->handler->handle($command);
-        $teamStats = $this->statisticsStore->getTeamStatistics('m1', 'arsenal');
+        $teamStats = $this->statisticsStore->getTeamStatistics(new MatchId('m1'), new TeamId('arsenal'))->toArray();
 
         $this->assertArrayHasKey('fouls', $teamStats);
         $this->assertEquals(1, $teamStats['fouls']);
@@ -193,7 +195,7 @@ class StoreEventCommandHandlerTest extends TestCase
         $this->handler->handle($command2);
 
         // Check that statistics were incremented correctly
-        $teamStats = $this->statisticsStore->getTeamStatistics('match_1', 'team_a');
+        $teamStats = $this->statisticsStore->getTeamStatistics(new MatchId('match_1'), new TeamId('team_a'))->toArray();
         $this->assertEquals(2, $teamStats['fouls']);
     }
 

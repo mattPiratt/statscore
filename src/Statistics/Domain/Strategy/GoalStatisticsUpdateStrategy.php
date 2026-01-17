@@ -4,8 +4,7 @@ namespace App\Statistics\Domain\Strategy;
 
 use App\Statistics\Domain\Event\GameEventInterface;
 use App\Statistics\Domain\Event\GoalEvent;
-use App\Statistics\Domain\Repository\StatisticsStoreInterface;
-use App\Statistics\Domain\ValueObject\StatType;
+use App\Statistics\Domain\Model\TeamStatistics;
 
 class GoalStatisticsUpdateStrategy implements StatisticsUpdateStrategyInterface
 {
@@ -17,20 +16,12 @@ class GoalStatisticsUpdateStrategy implements StatisticsUpdateStrategyInterface
     /**
      * @param GoalEvent $event
      */
-    public function update(GameEventInterface $event, StatisticsStoreInterface $statisticsStore): void
+    public function update(GameEventInterface $event, TeamStatistics $statistics): void
     {
-        $statisticsStore->updateTeamStatistics(
-            $event->matchId()->value(),
-            $event->teamId()->value(),
-            StatType::GOALS
-        );
+        $statistics->recordGoal();
 
         if ($event->assistant()) {
-            $statisticsStore->updateTeamStatistics(
-                $event->matchId()->value(),
-                $event->teamId()->value(),
-                StatType::ASSISTS
-            );
+            $statistics->recordAssist();
         }
     }
 }

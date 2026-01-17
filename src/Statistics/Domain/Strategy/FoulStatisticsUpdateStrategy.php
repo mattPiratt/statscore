@@ -4,8 +4,7 @@ namespace App\Statistics\Domain\Strategy;
 
 use App\Statistics\Domain\Event\FoulEvent;
 use App\Statistics\Domain\Event\GameEventInterface;
-use App\Statistics\Domain\Repository\StatisticsStoreInterface;
-use App\Statistics\Domain\ValueObject\StatType;
+use App\Statistics\Domain\Model\TeamStatistics;
 
 class FoulStatisticsUpdateStrategy implements StatisticsUpdateStrategyInterface
 {
@@ -17,12 +16,8 @@ class FoulStatisticsUpdateStrategy implements StatisticsUpdateStrategyInterface
     /**
      * @param FoulEvent $event
      */
-    public function update(GameEventInterface $event, StatisticsStoreInterface $statisticsStore): void
+    public function update(GameEventInterface $event, TeamStatistics $statistics): void
     {
-        $statisticsStore->updateTeamStatistics(
-            $event->matchId()->value(),
-            $event->teamId()->value(),
-            StatType::FOULS
-        );
+        $statistics->recordFoul();
     }
 }
