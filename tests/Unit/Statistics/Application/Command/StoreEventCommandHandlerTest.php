@@ -8,6 +8,7 @@ use App\Statistics\Application\Command\StoreEventCommandHandler;
 use App\Statistics\Domain\Factory\GameEventFactory;
 use App\Statistics\Domain\Repository\EventsStoreInterface;
 use App\Statistics\Domain\Repository\StatisticsStoreInterface;
+use App\Statistics\Domain\Service\RealTimeNotifierInterface;
 use App\Statistics\Domain\Strategy\FoulStatisticsUpdateStrategy;
 use App\Statistics\Domain\Strategy\GoalStatisticsUpdateStrategy;
 use App\Statistics\Domain\ValueObject\MatchId;
@@ -23,6 +24,7 @@ class StoreEventCommandHandlerTest extends TestCase
     private string $testStatsFile;
     private EventsStoreInterface $eventsStore;
     private StatisticsStoreInterface $statisticsStore;
+    private RealTimeNotifierInterface $notifier;
     private StoreEventCommandHandler $handler;
 
     protected function setUp(): void
@@ -32,10 +34,12 @@ class StoreEventCommandHandlerTest extends TestCase
 
         $this->eventsStore = new EventsStore($this->testFile);
         $this->statisticsStore = new StatisticsStore($this->testStatsFile);
+        $this->notifier = $this->createMock(RealTimeNotifierInterface::class);
         $this->handler = new StoreEventCommandHandler(
             $this->eventsStore,
             $this->statisticsStore,
             new GameEventFactory(new SystemClock()),
+            $this->notifier,
             [
                 new GoalStatisticsUpdateStrategy(),
                 new FoulStatisticsUpdateStrategy(),
@@ -70,6 +74,25 @@ class StoreEventCommandHandlerTest extends TestCase
         $this->assertEquals('goal', $result['type']);
         $this->assertEquals('match_1', $result['match_id']);
         $this->assertArrayHasKey('occurred_at', $result);
+    }
+
+    public function testHandleEventNotifiesRealTimeClients(): void
+    {
+        $eventData = [
+            'type' => 'foul',
+            'player' => 'John Doe',
+            'affected_player' => 'Jane Smith',
+            'team_id' => 'team_a',
+            'match_id' => 'match_1',
+            'minute' => 10,
+            'second' => 20
+        ];
+
+        $this->notifier->expects($this->once())
+            ->method('notify');
+
+        $command = new StoreEventCommand($eventData);
+        $this->handler->handle($command);
     }
 
     public function testHandleGoalEventUpdatesStatistics(): void

@@ -7,6 +7,7 @@ use App\Statistics\Domain\Factory\GameEventFactoryInterface;
 use App\Statistics\Domain\Model\TeamStatistics;
 use App\Statistics\Domain\Repository\EventsStoreInterface;
 use App\Statistics\Domain\Repository\StatisticsStoreInterface;
+use App\Statistics\Domain\Service\RealTimeNotifierInterface;
 use App\Statistics\Domain\Strategy\StatisticsUpdateStrategyInterface;
 
 class StoreEventCommandHandler implements CommandHandlerInterface
@@ -19,6 +20,7 @@ class StoreEventCommandHandler implements CommandHandlerInterface
         private readonly EventsStoreInterface $eventsStore,
         private readonly StatisticsStoreInterface $statisticsStore,
         private readonly ?GameEventFactoryInterface $eventFactory,
+        private readonly RealTimeNotifierInterface $notifier,
         private readonly array $strategies = []
     ) {
     }
@@ -34,6 +36,8 @@ class StoreEventCommandHandler implements CommandHandlerInterface
         $this->updateStatistics($event, $teamStatistics);
 
         $this->statisticsStore->save($teamStatistics);
+
+        $this->notifier->notify($event);
 
         return $event->toArray();
     }

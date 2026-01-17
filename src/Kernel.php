@@ -11,6 +11,7 @@ use App\Statistics\Domain\Strategy\FoulStatisticsUpdateStrategy;
 use App\Statistics\Domain\Strategy\GoalStatisticsUpdateStrategy;
 use App\Statistics\Infrastructure\Persistence\EventsStore;
 use App\Statistics\Infrastructure\Persistence\StatisticsStore;
+use App\Statistics\Infrastructure\Service\LogRealTimeNotifier;
 
 class Kernel
 {
@@ -31,11 +32,13 @@ class Kernel
             new GoalStatisticsUpdateStrategy(),
             new FoulStatisticsUpdateStrategy(),
         ];
+        $realTimeNotifier = new LogRealTimeNotifier();
 
         $storeEventCommandHandler = new StoreEventCommandHandler(
             eventsStore: $eventsStore,
             statisticsStore: $statsStore,
             eventFactory: $gameEventFactory,
+            notifier: $realTimeNotifier,
             strategies: $statisticsStrategies
         );
 
