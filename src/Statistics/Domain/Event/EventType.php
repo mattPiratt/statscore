@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Domain\Event;
+namespace App\Statistics\Domain\Event;
 
 enum EventType: string
 {

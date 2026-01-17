@@ -1,30 +1,28 @@
 <?php
 
-namespace App\Domain\Event;
+namespace App\Statistics\Domain\Event;
 
-use App\Domain\ValueObject\MatchId;
-use App\Domain\ValueObject\Player;
-use App\Domain\ValueObject\TeamId;
+use App\Statistics\Domain\ValueObject\MatchId;
+use App\Statistics\Domain\ValueObject\Player;
+use App\Statistics\Domain\ValueObject\TeamId;
 use DateTimeImmutable;
 
-class GoalEvent implements GameEventInterface
+class FoulEvent implements GameEventInterface
 {
-    private DateTimeImmutable $occurredAt;
-
     public function __construct(
         private readonly MatchId $matchId,
         private readonly TeamId $teamId,
-        private readonly Player $scorer,
-        private readonly ?Player $assistant,
+        private readonly Player $playerAtFault,
+        private readonly Player $affectedPlayer,
         private readonly int $minute,
-        private readonly ?int $second = null
+        private readonly ?int $second,
+        private readonly DateTimeImmutable $occurredAt
     ) {
-        $this->occurredAt = new DateTimeImmutable();
     }
 
     public function type(): EventType
     {
-        return EventType::GOAL;
+        return EventType::FOUL;
     }
 
     public function occurredAt(): DateTimeImmutable
@@ -42,14 +40,14 @@ class GoalEvent implements GameEventInterface
         return $this->teamId;
     }
 
-    public function scorer(): Player
+    public function playerAtFault(): Player
     {
-        return $this->scorer;
+        return $this->playerAtFault;
     }
 
-    public function assistant(): ?Player
+    public function affectedPlayer(): Player
     {
-        return $this->assistant;
+        return $this->affectedPlayer;
     }
 
     public function minute(): int
@@ -68,8 +66,8 @@ class GoalEvent implements GameEventInterface
             'type' => $this->type()->value,
             'match_id' => $this->matchId->value(),
             'team_id' => $this->teamId->value(),
-            'player' => $this->scorer->value(),
-            'assistant' => $this->assistant?->value(),
+            'player' => $this->playerAtFault->value(),
+            'affected_player' => $this->affectedPlayer->value(),
             'minute' => $this->minute,
             'second' => $this->second,
             'occurred_at' => $this->occurredAt->format(DateTimeImmutable::ATOM)

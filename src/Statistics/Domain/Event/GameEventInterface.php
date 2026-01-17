@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Domain\Event;
+namespace App\Statistics\Domain\Event;
 
-use App\Domain\ValueObject\MatchId;
-use App\Domain\ValueObject\TeamId;
+use App\Statistics\Domain\ValueObject\MatchId;
+use App\Statistics\Domain\ValueObject\TeamId;
 use DateTimeImmutable;
 
 interface GameEventInterface
