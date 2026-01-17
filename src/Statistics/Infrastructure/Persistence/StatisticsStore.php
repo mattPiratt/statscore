@@ -3,6 +3,7 @@
 namespace App\Statistics\Infrastructure\Persistence;
 
 use App\Statistics\Domain\Repository\StatisticsStoreInterface;
+use App\Statistics\Domain\ValueObject\StatType;
 use App\Statistics\Infrastructure\File\FileStorage;
 
 class StatisticsStore implements StatisticsStoreInterface
@@ -14,7 +15,7 @@ class StatisticsStore implements StatisticsStoreInterface
         $this->storage = new FileStorage($statsFile);
     }
 
-    public function updateTeamStatistics(string $matchId, string $teamId, string $statType, int $value = 1): void
+    public function updateTeamStatistics(string $matchId, string $teamId, StatType $statType, int $value = 1): void
     {
         $stats = $this->getStatistics();
 
@@ -26,11 +27,11 @@ class StatisticsStore implements StatisticsStoreInterface
             $stats[$matchId][$teamId] = [];
         }
 
-        if (!isset($stats[$matchId][$teamId][$statType])) {
-            $stats[$matchId][$teamId][$statType] = 0;
+        if (!isset($stats[$matchId][$teamId][$statType->value])) {
+            $stats[$matchId][$teamId][$statType->value] = 0;
         }
 
-        $stats[$matchId][$teamId][$statType] += $value;
+        $stats[$matchId][$teamId][$statType->value] += $value;
 
         $this->saveStatistics($stats);
     }

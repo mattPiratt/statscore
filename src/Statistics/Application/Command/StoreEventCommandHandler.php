@@ -3,9 +3,12 @@
 namespace App\Statistics\Application\Command;
 
 use App\Statistics\Domain\Event\FoulEvent;
+use App\Statistics\Domain\Event\GameEventInterface;
 use App\Statistics\Domain\Event\GoalEvent;
 use App\Statistics\Domain\Repository\EventsStoreInterface;
 use App\Statistics\Domain\Repository\StatisticsStoreInterface;
+use App\Statistics\Domain\Strategy\FoulStatisticsUpdateStrategy;
+use App\Statistics\Domain\Strategy\GoalStatisticsUpdateStrategy;
 use App\Statistics\Domain\ValueObject\MatchId;
 use App\Statistics\Domain\ValueObject\Player;
 use App\Statistics\Domain\ValueObject\TeamId;
@@ -17,8 +20,13 @@ class StoreEventCommandHandler implements CommandHandlerInterface
     public function __construct(
         private readonly EventsStoreInterface $eventsStore,
         private readonly StatisticsStoreInterface $statisticsStore,
-        private readonly ClockInterface $clock
+        private readonly ClockInterface $clock,
+        private array $strategies = []
     ) {
+        $this->strategies = $strategies ?: [
+            new GoalStatisticsUpdateStrategy(),
+            new FoulStatisticsUpdateStrategy(),
+        ];
     }
 
     public function handle(CommandInterface $command): array
@@ -35,10 +43,9 @@ class StoreEventCommandHandler implements CommandHandlerInterface
             'foul' => $this->createFoulEvent($data),
             default => throw new InvalidArgumentException('Unsupported event type: ' . $data['type']),
         };
-        
+
         $this->eventsStore->save($event);
 
-        // TODO: move this logic to a separate domain event
         $this->updateStatistics($event);
 
         return $event->toArray();
@@ -80,29 +87,12 @@ class StoreEventCommandHandler implements CommandHandlerInterface
         );
     }
 
-    private function updateStatistics($event): void
+    private function updateStatistics(GameEventInterface $event): void
     {
-        // TODO: strategy pattern in the future
-        if ($event instanceof GoalEvent) {
-            $this->statisticsStore->updateTeamStatistics(
-                $event->matchId()->value(),
-                $event->teamId()->value(),
-                'goals'
-            );
-
-            if ($event->assistant()) {
-                $this->statisticsStore->updateTeamStatistics(
-                    $event->matchId()->value(),
-                    $event->teamId()->value(),
-                    'assists'
-                );
+        foreach ($this->strategies as $strategy) {
+            if ($strategy->canHandle($event)) {
+                $strategy->update($event, $this->statisticsStore);
             }
-        } elseif ($event instanceof FoulEvent) {
-            $this->statisticsStore->updateTeamStatistics(
-                $event->matchId()->value(),
-                $event->teamId()->value(),
-                'fouls'
-            );
         }
     }
 }
