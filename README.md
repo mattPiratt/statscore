@@ -1,6 +1,35 @@
 # Football Events Application
 
-Simple application for handling football events
+This is a demonstration application used for recording match events (fouls, goals) and tracking team statistics in
+real-time.
+
+## About the project
+
+The project was created to showcase a modern approach to software architecture and engineering best practices. The main
+assumptions are:
+
+* **Hexagonal Architecture (Ports & Adapters):** Clear separation of business logic from infrastructure (file system,
+  system clock). This allows for easy replacement of components (e.g., changing storage from file-based to a SQL
+  database) without affecting the domain.
+* **CQRS (Command Query Responsibility Segregation):** Separation of write operations (`Command`) from read operations (
+  `Query`), which improves application readability and scalability.
+* **Rich Domain Model:** Business logic and invariants are encapsulated within domain objects (`Value Objects`,
+  `Domain Events`).
+* **Clean Code & Patterns:** Application of patterns such as `Strategy` (for updating statistics), `Factory`, and
+  `Composition Root`.
+* **Test-Driven Development:** A complete set of unit, integration, and API tests (PHPUnit, Codeception).
+
+### What was intentionally omitted (Next Steps)
+
+The application serves as a foundation for an Enterprise-class system; however, due to time constraints, some elements
+have been simplified:
+
+* **DI Container:** Dependencies are manually injected in `Kernel.php` (Composition Root). In a target system, a
+  container like `Symfony DI` or `PHP-DI` would be used.
+* **Event Bus / Message Broker:** Statistics updates occur synchronously. At a production scale, it would be beneficial
+  to introduce asynchronicity (e.g., RabbitMQ, Redis) and a full `Event-Driven Architecture`.
+* **Read Model Persistence:** The read model is currently generated dynamically from statistics data.
+* **Database:** `FileStorage` is currently used. Ports are prepared for implementations using `Doctrine` or `PDO`.
 
 ## Requirements
 
@@ -134,18 +163,19 @@ The project includes:
 ├── composer.json
 ├── phpunit.xml
 ├── public/
-│   └── index.php          # Application entry point
+│   └── index.php          # Entry point
 ├── src/
-│   ├── EventHandler.php      # Event handling
-│   ├── FileStorage.php       # File storage
-│   └── StatisticsManager.php # Statistics management
+│   ├── Kernel.php         # Composition Root & App Lifecycle
+│   ├── Presentation/      # Presentation Layer (Http)
+│   ├── Shared/            # Shared components (Clock, Utils)
+│   └── Statistics/        # Statistics Domain Module
+│       ├── Application/   # CQRS Handlers (Commands/Queries)
+│       ├── Domain/        # Business Logic (Model, Events, Strategies)
+│       └── Infrastructure/# Persistence (Storage, Repositories)
 ├── tests/
-│   ├── Unit/                 # PHPUnit tests
-|   |   └── EventHandlerTest.php
-│   ├── Api/                  # Codeception API tests
-│   │   ├── EventApiCest.php
-│   │   └── StatisticsApiCest.php
-│   └── Support/              # Test helpers
-└── storage/                  # Files with saved events and statistics
+│   ├── Unit/              # Unit tests
+│   ├── Api/               # Codeception API tests
+│   └── Support/           # Test helpers
+└── storage/               # File storage
 ```
 

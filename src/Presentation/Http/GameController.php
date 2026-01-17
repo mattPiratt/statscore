@@ -20,6 +20,7 @@ class GameController extends HttpJsonController
     public function handleEvent(): void
     {
         try {
+            // TODO: provide input data as handleEvent parameter
             $data = $this->getJsonData();
             // TODO: convert data into DTO
 
