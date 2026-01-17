@@ -8,17 +8,10 @@ use App\Statistics\Infrastructure\File\FileStorage;
 class StatisticsStore implements StatisticsStoreInterface
 {
     private FileStorage $storage;
-    private string $statsFile;
 
-    public function __construct(string $statsFile = '../storage/statistics.txt')
+    public function __construct(string $statsFile)
     {
         $this->storage = new FileStorage($statsFile);
-        $this->statsFile = $statsFile;
-
-        $directory = dirname($statsFile);
-        if (!is_dir($directory)) {
-            mkdir($directory, 0777, true);
-        }
     }
 
     public function updateTeamStatistics(string $matchId, string $teamId, string $statType, int $value = 1): void
@@ -56,16 +49,16 @@ class StatisticsStore implements StatisticsStoreInterface
 
     private function getStatistics(): array
     {
-        if (!file_exists($this->statsFile)) {
+        $content = $this->storage->getContent();
+        if ($content === null) {
             return [];
         }
 
-        $content = file_get_contents($this->statsFile);
         return json_decode($content, true) ?? [];
     }
 
     private function saveStatistics(array $stats): void
     {
-        file_put_contents($this->statsFile, json_encode($stats, JSON_PRETTY_PRINT), LOCK_EX);
+        $this->storage->overwrite($stats);
     }
 }

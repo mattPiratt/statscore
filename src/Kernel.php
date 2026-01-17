@@ -13,6 +13,7 @@ class Kernel
 
     public function __construct(string $baseDir)
     {
+        // TODO: use config package to handle paths
         $eventsPath = $baseDir . '/storage/events.txt';
         $statsPath = $baseDir . '/storage/statistics.txt';
 

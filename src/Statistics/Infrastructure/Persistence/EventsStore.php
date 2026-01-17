@@ -10,7 +10,7 @@ class EventsStore implements EventsStoreInterface
 {
     private FileStorage $storage;
 
-    public function __construct(string $eventsFile = '../storage/events.txt')
+    public function __construct(string $eventsFile)
     {
         $this->storage = new FileStorage($eventsFile);
     }
