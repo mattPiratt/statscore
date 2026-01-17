@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests\Unit\Statistics\Domain\Shared;
+namespace Tests\Unit\Statistics\Domain\Shared;
 
 use App\Statistics\Domain\Shared\StringValueObject;
 use InvalidArgumentException;

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests\Unit\Statistics\Domain\Event;
+namespace Tests\Unit\Statistics\Domain\Event;
 
 use App\Statistics\Domain\Event\EventType;
 use App\Statistics\Domain\Event\GoalEvent;

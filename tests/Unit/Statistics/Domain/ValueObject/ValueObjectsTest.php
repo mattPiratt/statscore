@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests\Unit\Statistics\Domain\ValueObject;
+namespace Tests\Unit\Statistics\Domain\ValueObject;
 
 use App\Statistics\Domain\ValueObject\MatchId;
 use App\Statistics\Domain\ValueObject\Player;
