@@ -3,26 +3,17 @@
 namespace App\Presentation\Http;
 
 use App\Shared\Infrastructure\HttpJsonController;
+use App\Statistics\Application\Command\CommandHandlerInterface;
 use App\Statistics\Application\Command\StoreEventCommand;
-use App\Statistics\Application\Command\StoreEventCommandHandler;
 use App\Statistics\Application\Query\GetStatisticsQuery;
-use App\Statistics\Application\Query\GetStatisticsQueryHandler;
-use App\Statistics\Domain\Factory\GameEventFactoryInterface;
-use App\Statistics\Domain\Repository\EventsStoreInterface;
-use App\Statistics\Domain\Repository\StatisticsStoreInterface;
-use App\Statistics\Domain\Strategy\StatisticsUpdateStrategyInterface;
+use App\Statistics\Application\Query\QueryHandlerInterface;
 use Exception;
 
 class GameController extends HttpJsonController
 {
-    /**
-     * @var StatisticsUpdateStrategyInterface[] $strategies
-     */
     public function __construct(
-        private readonly EventsStoreInterface $eventsStore,
-        private readonly StatisticsStoreInterface $statsStore,
-        private readonly GameEventFactoryInterface $eventFactory,
-        private readonly array $strategies = []
+        private readonly CommandHandlerInterface $storeEventCommandHandler,
+        private readonly QueryHandlerInterface $getStatisticsQueryHandler
     ) {
     }
 
@@ -30,16 +21,10 @@ class GameController extends HttpJsonController
     {
         try {
             $data = $this->getJsonData();
+            // TODO: convert data into DTO
 
-            $handler = new StoreEventCommandHandler(
-                eventsStore: $this->eventsStore,
-                statisticsStore: $this->statsStore,
-                eventFactory: $this->eventFactory,
-                strategies: $this->strategies
-            );
             $command = new StoreEventCommand($data);
-
-            $result = $handler->handle($command);
+            $result = $this->storeEventCommandHandler->handle($command);
 
             $this->sendResponse(201, [
                 'status' => 'success',
@@ -59,9 +44,8 @@ class GameController extends HttpJsonController
         }
 
         try {
-            $queryHandler = new GetStatisticsQueryHandler($this->statsStore);
             $query = new GetStatisticsQuery($matchId, $teamId);
-            $result = $queryHandler->ask($query);
+            $result = $this->getStatisticsQueryHandler->ask($query);
 
             $this->sendResponse(200, $result);
         } catch (Exception $e) {

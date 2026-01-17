@@ -4,6 +4,8 @@ namespace App;
 
 use App\Presentation\Http\GameController;
 use App\Shared\Infrastructure\SystemClock;
+use App\Statistics\Application\Command\StoreEventCommandHandler;
+use App\Statistics\Application\Query\GetStatisticsQueryHandler;
 use App\Statistics\Domain\Factory\GameEventFactory;
 use App\Statistics\Domain\Strategy\FoulStatisticsUpdateStrategy;
 use App\Statistics\Domain\Strategy\GoalStatisticsUpdateStrategy;
@@ -20,6 +22,7 @@ class Kernel
         $eventsPath = $baseDir . '/storage/events.txt';
         $statsPath = $baseDir . '/storage/statistics.txt';
 
+        // Composition Root
         // TODO: use php-di/php-di package to handle cleanly inversion of controll
         $eventsStore = new EventsStore($eventsPath);
         $statsStore = new StatisticsStore($statsPath);
@@ -29,11 +32,18 @@ class Kernel
             new FoulStatisticsUpdateStrategy(),
         ];
 
-        $this->controller = new GameController(
+        $storeEventCommandHandler = new StoreEventCommandHandler(
             eventsStore: $eventsStore,
-            statsStore: $statsStore,
+            statisticsStore: $statsStore,
             eventFactory: $gameEventFactory,
             strategies: $statisticsStrategies
+        );
+
+        $getStatisticsQueryHandler = new GetStatisticsQueryHandler($statsStore);
+
+        $this->controller = new GameController(
+            storeEventCommandHandler: $storeEventCommandHandler,
+            getStatisticsQueryHandler: $getStatisticsQueryHandler
         );
     }
 
