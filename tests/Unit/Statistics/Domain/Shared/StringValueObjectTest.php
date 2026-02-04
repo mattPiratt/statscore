@@ -2,7 +2,7 @@
 
 namespace Tests\Unit\Statistics\Domain\Shared;
 
-use App\Statistics\Domain\Shared\StringValueObject;
+use App\Shared\ValueObject\StringValueObject;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 

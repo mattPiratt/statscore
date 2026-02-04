@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Presentation\Http;
+namespace App\Presentation\Http\Controller;
 
-use App\Shared\Infrastructure\HttpJsonController;
-use App\Statistics\Application\Command\CommandHandlerInterface;
+use App\Presentation\Http\Shared\HttpJsonController;
+use App\Shared\CQRS\CommandHandlerInterface;
+use App\Shared\CQRS\QueryHandlerInterface;
 use App\Statistics\Application\Command\StoreEventCommand;
 use App\Statistics\Application\Query\GetStatisticsQuery;
-use App\Statistics\Application\Query\QueryHandlerInterface;
 use Exception;
 
 class GameController extends HttpJsonController

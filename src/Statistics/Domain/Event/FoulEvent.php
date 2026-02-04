@@ -3,7 +3,7 @@
 namespace App\Statistics\Domain\Event;
 
 use App\Statistics\Domain\ValueObject\MatchId;
-use App\Statistics\Domain\ValueObject\Player;
+use App\Statistics\Domain\ValueObject\PlayerName;
 use App\Statistics\Domain\ValueObject\TeamId;
 use DateTimeImmutable;
 
@@ -12,8 +12,8 @@ class FoulEvent implements GameEventInterface
     public function __construct(
         private readonly MatchId $matchId,
         private readonly TeamId $teamId,
-        private readonly Player $playerAtFault,
-        private readonly Player $affectedPlayer,
+        private readonly PlayerName $playerAtFault,
+        private readonly PlayerName $affectedPlayer,
         private readonly int $minute,
         private readonly ?int $second,
         private readonly DateTimeImmutable $occurredAt
@@ -40,12 +40,12 @@ class FoulEvent implements GameEventInterface
         return $this->teamId;
     }
 
-    public function playerAtFault(): Player
+    public function playerAtFault(): PlayerName
     {
         return $this->playerAtFault;
     }
 
-    public function affectedPlayer(): Player
+    public function affectedPlayer(): PlayerName
     {
         return $this->affectedPlayer;
     }

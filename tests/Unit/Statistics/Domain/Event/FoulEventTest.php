@@ -5,7 +5,7 @@ namespace Tests\Unit\Statistics\Domain\Event;
 use App\Statistics\Domain\Event\EventType;
 use App\Statistics\Domain\Event\FoulEvent;
 use App\Statistics\Domain\ValueObject\MatchId;
-use App\Statistics\Domain\ValueObject\Player;
+use App\Statistics\Domain\ValueObject\PlayerName;
 use App\Statistics\Domain\ValueObject\TeamId;
 use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
@@ -16,8 +16,8 @@ class FoulEventTest extends TestCase
     {
         $matchId = new MatchId('m1');
         $teamId = new TeamId('arsenal');
-        $playerAtFault = new Player('William Saliba');
-        $affectedPlayer = new Player('Erling Haaland');
+        $playerAtFault = new PlayerName('William Saliba');
+        $affectedPlayer = new PlayerName('Erling Haaland');
         $minute = 45;
         $second = 34;
         $occurredAt = new DateTimeImmutable();
@@ -46,8 +46,8 @@ class FoulEventTest extends TestCase
     {
         $matchId = new MatchId('m1');
         $teamId = new TeamId('arsenal');
-        $playerAtFault = new Player('William Saliba');
-        $affectedPlayer = new Player('Erling Haaland');
+        $playerAtFault = new PlayerName('William Saliba');
+        $affectedPlayer = new PlayerName('Erling Haaland');
         $minute = 45;
         $second = 34;
         $occurredAt = new DateTimeImmutable('2024-01-01 12:00:00');

@@ -5,7 +5,7 @@ namespace Tests\Unit\Statistics\Domain\Event;
 use App\Statistics\Domain\Event\EventType;
 use App\Statistics\Domain\Event\GoalEvent;
 use App\Statistics\Domain\ValueObject\MatchId;
-use App\Statistics\Domain\ValueObject\Player;
+use App\Statistics\Domain\ValueObject\PlayerName;
 use App\Statistics\Domain\ValueObject\TeamId;
 use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
@@ -16,8 +16,8 @@ class GoalEventTest extends TestCase
     {
         $matchId = new MatchId('m1');
         $teamId = new TeamId('arsenal');
-        $scorer = new Player('Bukayo Saka');
-        $assistant = new Player('Martin Odegaard');
+        $scorer = new PlayerName('Bukayo Saka');
+        $assistant = new PlayerName('Martin Odegaard');
         $minute = 12;
         $second = 5;
         $occurredAt = new DateTimeImmutable();
@@ -46,7 +46,7 @@ class GoalEventTest extends TestCase
     {
         $matchId = new MatchId('m1');
         $teamId = new TeamId('arsenal');
-        $scorer = new Player('Bukayo Saka');
+        $scorer = new PlayerName('Bukayo Saka');
         $minute = 12;
         $second = null;
         $occurredAt = new DateTimeImmutable();
@@ -69,8 +69,8 @@ class GoalEventTest extends TestCase
     {
         $matchId = new MatchId('m1');
         $teamId = new TeamId('arsenal');
-        $scorer = new Player('Bukayo Saka');
-        $assistant = new Player('Martin Odegaard');
+        $scorer = new PlayerName('Bukayo Saka');
+        $assistant = new PlayerName('Martin Odegaard');
         $minute = 12;
         $second = 5;
         $occurredAt = new DateTimeImmutable('2024-01-01 12:00:00');

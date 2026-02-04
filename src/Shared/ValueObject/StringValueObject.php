@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Statistics\Domain\Shared;
+namespace App\Shared\ValueObject;
 
 use InvalidArgumentException;
 

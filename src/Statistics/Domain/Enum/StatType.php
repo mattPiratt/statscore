@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Statistics\Domain\ValueObject;
+namespace App\Statistics\Domain\Enum;
 
 enum StatType: string
 {

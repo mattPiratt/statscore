@@ -2,7 +2,7 @@
 
 namespace App\Statistics\Domain\ValueObject;
 
-use App\Statistics\Domain\Shared\StringValueObject;
+use App\Shared\ValueObject\StringValueObject;
 
 class MatchId extends StringValueObject
 {

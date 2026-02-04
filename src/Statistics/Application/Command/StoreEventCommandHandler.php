@@ -2,6 +2,8 @@
 
 namespace App\Statistics\Application\Command;
 
+use App\Shared\CQRS\CommandHandlerInterface;
+use App\Shared\CQRS\CommandInterface;
 use App\Statistics\Domain\Event\GameEventInterface;
 use App\Statistics\Domain\Factory\GameEventFactoryInterface;
 use App\Statistics\Domain\Model\TeamStatistics;

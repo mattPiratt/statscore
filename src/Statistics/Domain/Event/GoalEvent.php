@@ -3,7 +3,7 @@
 namespace App\Statistics\Domain\Event;
 
 use App\Statistics\Domain\ValueObject\MatchId;
-use App\Statistics\Domain\ValueObject\Player;
+use App\Statistics\Domain\ValueObject\PlayerName;
 use App\Statistics\Domain\ValueObject\TeamId;
 use DateTimeImmutable;
 
@@ -12,8 +12,8 @@ class GoalEvent implements GameEventInterface
     public function __construct(
         private readonly MatchId $matchId,
         private readonly TeamId $teamId,
-        private readonly Player $scorer,
-        private readonly ?Player $assistant,
+        private readonly PlayerName $scorer,
+        private readonly ?PlayerName $assistant,
         private readonly int $minute,
         private readonly ?int $second,
         private readonly DateTimeImmutable $occurredAt
@@ -40,12 +40,12 @@ class GoalEvent implements GameEventInterface
         return $this->teamId;
     }
 
-    public function scorer(): Player
+    public function scorer(): PlayerName
     {
         return $this->scorer;
     }
 
-    public function assistant(): ?Player
+    public function assistant(): ?PlayerName
     {
         return $this->assistant;
     }

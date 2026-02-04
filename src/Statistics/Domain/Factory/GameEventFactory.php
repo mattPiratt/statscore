@@ -6,7 +6,7 @@ use App\Statistics\Domain\Event\FoulEvent;
 use App\Statistics\Domain\Event\GameEventInterface;
 use App\Statistics\Domain\Event\GoalEvent;
 use App\Statistics\Domain\ValueObject\MatchId;
-use App\Statistics\Domain\ValueObject\Player;
+use App\Statistics\Domain\ValueObject\PlayerName;
 use App\Statistics\Domain\ValueObject\TeamId;
 use InvalidArgumentException;
 use Psr\Clock\ClockInterface;
@@ -40,8 +40,8 @@ class GameEventFactory implements GameEventFactoryInterface
         return new GoalEvent(
             new MatchId($data['match_id']),
             new TeamId($data['team_id']),
-            new Player($data['player']),
-            isset($data['assistant']) ? new Player($data['assistant']) : null,
+            new PlayerName($data['player']),
+            isset($data['assistant']) ? new PlayerName($data['assistant']) : null,
             (int)($data['minute'] ?? 0),
             isset($data['second']) ? (int)$data['second'] : null,
             $this->clock->now()
@@ -59,8 +59,8 @@ class GameEventFactory implements GameEventFactoryInterface
         return new FoulEvent(
             new MatchId($data['match_id']),
             new TeamId($data['team_id']),
-            new Player($data['player']),
-            new Player($data['affected_player']),
+            new PlayerName($data['player']),
+            new PlayerName($data['affected_player']),
             (int)($data['minute'] ?? 0),
             isset($data['second']) ? (int)$data['second'] : null,
             $this->clock->now()

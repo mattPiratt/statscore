@@ -2,7 +2,7 @@
 
 namespace App;
 
-use App\Presentation\Http\GameController;
+use App\Presentation\Http\Controller\GameController;
 use App\Shared\Infrastructure\SystemClock;
 use App\Statistics\Application\Command\StoreEventCommandHandler;
 use App\Statistics\Application\Query\GetStatisticsQueryHandler;

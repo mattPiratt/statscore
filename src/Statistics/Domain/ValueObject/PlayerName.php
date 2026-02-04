@@ -4,6 +4,6 @@ namespace App\Statistics\Domain\ValueObject;
 
 use App\Shared\ValueObject\StringValueObject;
 
-class TeamId extends StringValueObject
+class PlayerName extends StringValueObject
 {
 }

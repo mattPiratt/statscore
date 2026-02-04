@@ -3,7 +3,7 @@
 namespace Tests\Unit\Statistics\Domain\ValueObject;
 
 use App\Statistics\Domain\ValueObject\MatchId;
-use App\Statistics\Domain\ValueObject\Player;
+use App\Statistics\Domain\ValueObject\PlayerName;
 use App\Statistics\Domain\ValueObject\TeamId;
 use PHPUnit\Framework\TestCase;
 
@@ -26,7 +26,7 @@ class ValueObjectsTest extends TestCase
     public function test_player(): void
     {
         $name = 'William Saliba';
-        $player = new Player($name);
+        $player = new PlayerName($name);
         $this->assertEquals($name, $player->value());
     }
 }

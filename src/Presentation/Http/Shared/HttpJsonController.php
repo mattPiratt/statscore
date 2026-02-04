@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Shared\Infrastructure;
+namespace App\Presentation\Http\Shared;
 
 use Exception;
 
